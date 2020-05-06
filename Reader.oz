@@ -1,11 +1,13 @@
 functor
 import
     Open
+    Parser
+    System
 export
     textfile:TextFile
     scan:Scan
-
 define
+    PortParser = {Parser.startParser}
     % Fetches the N-th line in a file
     % @pre: - InFile: a TextFile from the file
     %       - N: the desires Nth line
@@ -15,14 +17,11 @@ define
     in
         if Line==false then
             {InFile close}
+            {Send PortParser endFile}
             none
         else
-            if N==1 then
-                {InFile close}
-                Line
-            else
-                {Scan InFile N-1}
-            end
+            {Send PortParser parse(Line)}
+            {Scan InFile N+1}
         end
     end
 

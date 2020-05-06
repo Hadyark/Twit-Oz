@@ -7,6 +7,10 @@ import
     Browser
 
     Reader
+    Saver
+
+    Dico
+
 define
 %%% Easier macros for imported functions
     Browse = Browser.browse
@@ -14,6 +18,7 @@ define
 
 %%% Read File
     fun {GetFirstLine IN_NAME}
+        {Saver.startSaver}
         {Reader.scan {New Reader.textfile init(name:IN_NAME)} 1}
     end
 
@@ -30,16 +35,19 @@ define
         action:proc{$}{Application.exit 0} end % quit app gracefully on window closing
     )
     proc {Press} Inserted in
-        Inserted = {Text1 getText(p(1 0) 'end' $)} % example using coordinates to get text
+        {Send Saver.port predict(a Inserted)}
+        %Inserted = {Text1 getText(p(1 0) 'end' $)} % example using coordinates to get text
         {Text2 set(1:Inserted)} % you can get/set text this way too
     end
     % Build the layout from the description
     W={QTk.build Description}
     {W show}
-
+    
     {Text1 tk(insert 'end' {GetFirstLine "tweets/part_1.txt"})}
     {Text1 bind(event:"<Control-s>" action:Press)} % You can also bind events
 
     {Show 'You can print in the terminal...'}
     {Browse '... or use the browser window'}
+
+
 end
