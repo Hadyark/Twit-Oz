@@ -9,8 +9,15 @@ export
 define
     Dico
     Port
-    proc{PredictNext Word1 Next}
-        Next='predict1'
+    proc{PredictNext Word1 Next} HValue in
+    {System.show Word1}
+        if {Dictionary.member Dico Word1} then
+            HValue = {Dictionary.get Dico Word1}
+            Next = HValue.most
+        else
+            Next= 'Word not found'
+            {System.show {Dictionary.keys Dico}}
+        end
     end
     proc{TreatStream Stream}
         case Stream

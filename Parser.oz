@@ -83,6 +83,7 @@ define
         of nil then skip
         []parse(Line)|S then
             {ParseLine Line}
+            %{System.show Line}  
             {TreatStream S}
         []endFile|S then  
             {System.show parser(endFile)}  

@@ -34,10 +34,14 @@ define
         text(handle:Text2 width:28 height:5 background:black foreground:white glue:w wrap:word)
         action:proc{$}{Application.exit 0} end % quit app gracefully on window closing
     )
-    proc {Press} Inserted in
-        {Send Saver.port predict(a Inserted)}
-        %Inserted = {Text1 getText(p(1 0) 'end' $)} % example using coordinates to get text
-        {Text2 set(1:Inserted)} % you can get/set text this way too
+    proc {Press} Word1 Inserted Input in
+        Word1 = {Text1 getText(p(1 0) 'end' $)}
+        {String.toAtom {List.subtract Word1 10 } Input}
+        {System.show main(Input)}
+        {Send Saver.port predict(Input Inserted)}
+        %{System.show ins(Inserted)}
+        
+        {Text2 set(1:Inserted)} % you can get/set text this way too        
     end
     % Build the layout from the description
     W={QTk.build Description}
