@@ -6,12 +6,11 @@ import
 export
     startParser:StartParser
 define
-    Dico
     Debug = false
-    proc{ParseLine Line} HValue TValue PValue MostUsed MostUsedT in
+    fun{ParseLine Dico Line} HValue TValue PValue MostUsed MostUsedT in
     
         case Line
-        of nil then skip
+        of nil then Dico
         [] H | T then
         if Debug then{System.show H}end
             if {Dictionary.member Dico H} then %Si le mot lvl1 est présent
@@ -72,33 +71,71 @@ define
                     {Dictionary.put Dico H hValue(most:null dico:{Dictionary.new})}%Ajouter au Dico
                 end
             end
-            {ParseLine T}
+            {ParseLine Dico T}
         end
     end
-    
-    proc{TreatStream Stream}
+    proc{PrintDico3 TDico TKeys}
+        case TKeys 
+        of nil then skip
+        [] Key|T then 
+            {System.show ooooooooooood3(key:Key value:{Dictionary.get TDico Key})}
+            {PrintDico3 TDico T}
+        end
+    end
+    proc{PrintDico2 HDico HKeys} Keys TValue in
+        case HKeys 
+        of nil then skip
+        [] Key|T then 
+            TValue = {Dictionary.get HDico Key}
+            {System.show ooooood2(key:Key value:TValue)}
+            {PrintDico3 TValue.dico {Dictionary.keys TValue.dico}}
+            {PrintDico2 HDico T}
+        end
+    end
+    proc{PrintDico Dico Keys} HValue in
+        case Keys 
+        of nil then skip
+        [] Key|T then 
+            
+            HValue = {Dictionary.get Dico Key}
+            {PrintDico2 HValue.dico {Dictionary.keys HValue.dico}}
+            {PrintDico Dico T}
+        end
+    end
+    proc{PrintLine Line}
+
+        case Line
+        of nil then skip
+        [] H|T then 
+            {System.show Line}
+        end
+    end
+    proc{TreatStream Stream Dico}
         UpdatedDico
         in
         case Stream
         of nil then skip
         []parse(Line)|S then
-            {ParseLine Line}
-            %{System.show Line}  
-            {TreatStream S}
+            UpdatedDico = {ParseLine Dico Line}
+            %{PrintLine Line}
+            {TreatStream S UpdatedDico}
         []endFile|S then  
-            {System.show parser(endFile)}  
+            %{System.show parser(endFile)} 
+            %{PrintDico Dico {Dictionary.keys Dico}}
             {Send Saver.port dico(Dico)}
         end
     end
 
-    fun{StartParser}
+    fun{StartParser PortMain}
         Stream
         Port
     in
+        %{System.show parser(ready)}
         {NewPort Stream Port}
-        Dico = {Dictionary.new}
         thread
-            {TreatStream Stream}
+            {TreatStream Stream {Dictionary.new}}
+            {Send PortMain kill}
+
         end
         Port
     end

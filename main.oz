@@ -5,22 +5,19 @@ import
     Application
     OS
     Browser
-
+    Panel
     Reader
+    Parser
     Saver
 
     Dico
 
 define
+    PortMain
+    Ready
 %%% Easier macros for imported functions
     Browse = Browser.browse
     Show = System.show
-
-%%% Read File
-    fun {GetFirstLine IN_NAME}
-        {Saver.startSaver}
-        {Reader.scan {New Reader.textfile init(name:IN_NAME)} 1}
-    end
 
 %%% GUI
     % Make the window description, all the parameters are explained here:
@@ -34,11 +31,27 @@ define
         text(handle:Text2 width:28 height:5 background:black foreground:white glue:w wrap:word)
         action:proc{$}{Application.exit 0} end % quit app gracefully on window closing
     )
-    proc {Press} Word1 Inserted Input in
-        Word1 = {Text1 getText(p(1 0) 'end' $)}
-        {String.toAtom {List.subtract Word1 10 } Input}
-        {System.show main(Input)}
-        {Send Saver.port predict(Input Inserted)}
+    fun {CreateSearch List Word Search} OutPut in
+
+        case List
+        of nil then
+            {String.toAtom Word OutPut}
+            {Append Search [OutPut]}
+        [] H|T then
+            if H==32 then
+                {String.toAtom Word OutPut}
+                {CreateSearch T nil {Append Search [OutPut]}}
+            else
+                {CreateSearch T {Append Word [H]} Search}
+            end
+        end
+    end
+
+    proc {Press} Word Inserted Input in
+        Word = {Text1 getText(p(1 0) 'end' $)}
+        {System.show main(Word)}
+        
+        {Send Saver.port predict({CreateSearch {List.subtract Word 10} nil nil} Inserted)}
         %{System.show ins(Inserted)}
         
         {Text2 set(1:Inserted)} % you can get/set text this way too        
@@ -46,12 +59,37 @@ define
     % Build the layout from the description
     W={QTk.build Description}
     {W show}
+%    
     
-    {Text1 tk(insert 'end' {GetFirstLine "tweets/part_1.txt"})}
-    {Text1 bind(event:"<Control-s>" action:Press)} % You can also bind events
 
-    {Show 'You can print in the terminal...'}
-    {Browse '... or use the browser window'}
+    proc{TreatStream Stream N File X}
+    {Text2 set(1:X#"/208 files")}
+        if N == init then
+            thread {Reader.scan {Parser.startParser PortMain} {New Reader.textfile init(name:"tweets/part_"#File#".txt")} 1}end
+            %thread {Reader.scan {Parser.startParser} {New Reader.textfile init(name:"tweets/a"#File#".txt")} 1}end
+            {TreatStream Stream 1 File+1 X}
+        elseif N == 0 andthen Ready == true then {Text2 set(1:"Ready !")}
+        elseif N > 0 andthen N =< 3 andthen File =< 208 then
+                thread {Reader.scan {Parser.startParser PortMain} {New Reader.textfile init(name:"tweets/part_"#File#".txt")} 1}end
+                %thread {Reader.scan {Parser.startParser} {New Reader.textfile init(name:"tweets/a"#File#".txt")} 1}end
+                {TreatStream Stream N+1 File+1 X}
+        else
+            case Stream
+            of nil then skip
+            [] kill|S then
+                %{System.show dead(X+1)}
+                {TreatStream Stream N-1 File X+1}
+            end
+        end
+    end
 
+    proc{StartM}
+        Stream
+    in
+        {NewPort Stream PortMain}
+        {TreatStream Stream init 1 0}
+    end
 
+    {Saver.startSaver PortMain Ready}
+    {StartM}
 end
