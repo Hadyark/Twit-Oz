@@ -46,7 +46,8 @@ define
             end
         end
     end
-
+    {Panel.open}
+    {Delay 5000}
     proc {Press} Word Inserted Input in
         Word = {Text1 getText(p(1 0) 'end' $)}
         {System.show main(Word)}
@@ -63,22 +64,25 @@ define
     
 
     proc{TreatStream Stream N File X}
-    {Text2 set(1:X#"/208 files")}
-        if N == init then
+    %{System.show Stream.1}
+        case Stream
+        of init|S then
+            {Send PortMain newT}{Send PortMain newT}{Send PortMain newT}
             thread {Reader.scan {Parser.startParser PortMain} {New Reader.textfile init(name:"tweets/part_"#File#".txt")} 1}end
-            %thread {Reader.scan {Parser.startParser} {New Reader.textfile init(name:"tweets/a"#File#".txt")} 1}end
-            {TreatStream Stream 1 File+1 X}
-        elseif N == 0 andthen Ready == true then {Text2 set(1:"Ready !")}
-        elseif N > 0 andthen N =< 3 andthen File =< 208 then
+            thread {Reader.scan {Parser.startParser PortMain} {New Reader.textfile init(name:"tweets/part_"#File+1#".txt")} 1}end
+            thread {Reader.scan {Parser.startParser PortMain} {New Reader.textfile init(name:"tweets/part_"#File+2#".txt")} 1}end
+            {TreatStream S N File X}
+        [] newT|S then{System.show n(n:N+1 x:X file: File)}
+            {TreatStream S N+1 File+1 X}
+        [] kill|S then
+            %{System.show dead(X+1)}
+            {Text2 set(1:X#"/208 files")}
+            {System.show k(n:N-1 x:X+1 file: File)}
+            if File > 208 andthen N > 1 then {TreatStream S N-1 File X+1}
+            elseif File =< 208 then
                 thread {Reader.scan {Parser.startParser PortMain} {New Reader.textfile init(name:"tweets/part_"#File#".txt")} 1}end
-                %thread {Reader.scan {Parser.startParser} {New Reader.textfile init(name:"tweets/a"#File#".txt")} 1}end
-                {TreatStream Stream N+1 File+1 X}
-        else
-            case Stream
-            of nil then skip
-            [] kill|S then
-                %{System.show dead(X+1)}
-                {TreatStream Stream N-1 File X+1}
+                {TreatStream S N File+1 X+1}
+            elseif N == 1 andthen Ready == true then {Text2 set(1:"Ready !")}
             end
         end
     end
@@ -87,7 +91,8 @@ define
         Stream
     in
         {NewPort Stream PortMain}
-        {TreatStream Stream init 1 0}
+        {Send PortMain init}
+        {TreatStream Stream 0 1 0}
     end
 
     {Saver.startSaver PortMain Ready}

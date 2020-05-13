@@ -156,11 +156,11 @@ define
     end
 
     proc{TreatStream Stream PortMain N Ready} Keys in
-        if N >= 7 then Ready = true end
+        if N >= 208 then Ready = true end
         case Stream
         of nil then skip
         []dico(D)|S then
-            %{System.show saver(dicoReceived N+1)}
+            {System.show saver(dicoReceived N+1)}
             {Dictionary.keys D Keys}
             {UpdateDico D Keys}
 

@@ -134,8 +134,8 @@ define
         {NewPort Stream Port}
         thread
             {TreatStream Stream {Dictionary.new}}
+            {System.show 'b'}
             {Send PortMain kill}
-
         end
         Port
     end
