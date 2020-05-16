@@ -5,12 +5,9 @@ import
     Application
     OS
     Browser
-    Panel
     Reader
     Parser
     Saver
-
-    Dico
 
 define
     PortMain
@@ -22,17 +19,34 @@ define
 %%% GUI
     % Make the window description, all the parameters are explained here:
     % http://mozart2.org/mozart-v1/doc-1.4.0/mozart-stdlib/wp/qtk/html/node7.html)
-    Text1 Text2 Description=td(
+    fun{EditInput Word} Input L in
+        Input = {Text1 getText(p(1 0) 'end' $)}
+        L ={CreateSearch {List.subtract Input 10} nil nil}
+        if {List.length L} > 1 then
+            L.1#' '#L.2.1
+        elseif {List.length L} == 1 then
+            L.1#' '#Word
+        else
+            ''
+        end
+    end
+    Text1 Text2 DropList Description=td(
         title: "Frequency count"
         lr(
             text(handle:Text1 width:28 height:5 background:white foreground:black wrap:word)
             button(text:"Change" action:Press)
+            dropdownlistbox(
+            init:[0]                           
+            handle:DropList                           
+            action:proc{$} {Text1 set(
+                            {EditInput {List.nth {DropList get($)} {DropList get(firstselection:$)}}}
+                            )} 
+                    end)
         )
         text(handle:Text2 width:28 height:5 background:black foreground:white glue:w wrap:word)
         action:proc{$}{Application.exit 0} end % quit app gracefully on window closing
     )
     fun {CreateSearch List Word Search} OutPut in
-
         case List
         of nil then
             {String.toAtom Word OutPut}
@@ -46,16 +60,16 @@ define
             end
         end
     end
-    {Panel.open}
-    {Delay 5000}
-    proc {Press} Word Inserted Input in
-        Word = {Text1 getText(p(1 0) 'end' $)}
+
+    proc {Press} Inserted Input Keys in
+        Input = {Text1 getText(p(1 0) 'end' $)}
         %{System.show main(Word)}
         
-        {Send Saver.port predict({CreateSearch {List.subtract Word 10} nil nil} Inserted)}
+        {Send Saver.port predict({CreateSearch {List.subtract Input 10} nil nil} Inserted Keys)}
         %{System.show ins(Inserted)}
         
-        {Text2 set(1:Inserted)} % you can get/set text this way too        
+        {Text2 set(1:Inserted)} % you can get/set text this way too 
+        {DropList set(1:Keys)}      
     end
     % Build the layout from the description
     W={QTk.build Description}

@@ -95,13 +95,15 @@ define
         end
 
     end
-    proc{PredictNext Search Predict} HValue TValue Word1 Word2 in
+    proc{PredictNext Search Predict Keys} HValue TValue Word1 Word2 in
         if {List.length Search} == 1 then
             Word1 = Search.1
             if {Dictionary.member Dico Word1} then
                 HValue = {Dictionary.get Dico Word1}
+                Keys = {Dictionary.keys HValue.dico}
                 Predict = HValue.most
             else
+                Keys = [empty]
                 Predict= 'Word not found'
             end
         else
@@ -112,13 +114,15 @@ define
                 if {Dictionary.member HValue.dico Word2} then
                     HValue = {Dictionary.get Dico Word1}
                     TValue = {Dictionary.get HValue.dico Word2}
+                    Keys = {Dictionary.keys TValue.dico}
                     Predict = TValue.most
                 else
-                    {PredictNext [Word1] Predict}
+                    {PredictNext [Word1] Predict Keys}
                 end
             elseif {Dictionary.member Dico Word2} then
-                {PredictNext [Word2] Predict}
+                {PredictNext [Word2] Predict Keys}
             else
+                Keys = [empty]
                 Predict= 'Word not found'
             end
         end
@@ -165,8 +169,8 @@ define
             %{PrintDico Dico {Dictionary.keys Dico}}
             %{Send PortMain kill}
             {TreatStream S PortMain N+1 Ready}
-        []predict(Search Predict)|S then
-            {PredictNext Search Predict}
+        []predict(Search Predict Keys)|S then
+            {PredictNext Search Predict Keys}
             %{PrintDico Dico {Dictionary.keys Dico}}
             {TreatStream S PortMain N Ready}
         else
