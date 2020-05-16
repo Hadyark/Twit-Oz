@@ -34,11 +34,11 @@ define
         title: "Frequency count"
         lr(
             text(handle:Text1 width:28 height:5 background:white foreground:black wrap:word)
-            button(text:"Change" action:Press)
+            button(text:"Predict" action:Press)
             dropdownlistbox(
-            init:[0]                           
-            handle:DropList                           
-            action:proc{$} {Text1 set(
+                init:[0]                           
+                handle:DropList                           
+                action:proc{$} {Text1 set(
                             {EditInput {List.nth {DropList get($)} {DropList get(firstselection:$)}}}
                             )} 
                     end)
