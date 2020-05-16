@@ -17,7 +17,7 @@ define
                 if Debug then {System.show if1}end
                 HValue = {Dictionary.get Dico H} %Get la valeur pour lvl1
                 if T \= nil andthen {Dictionary.member HValue.dico T.1} then %Si le mot lvl2 est présent dans le dico de lvl1
-                if Debug then{System.show if2}end
+                    if Debug then{System.show if2}end
                     TValue = {Dictionary.get HValue.dico T.1}  %Get la valeur pour lvl2
                     {Dictionary.put HValue.dico T.1 tValue(most:TValue.most dico:TValue.dico cnt:TValue.cnt+1)}  %Modifier le count lvl2
                     if HValue.most \= null then
@@ -48,14 +48,27 @@ define
                     elseif T.2 \= nil then %Si le mot lvl3 n'est pas présent dans le dico de lvl2
                         if Debug then{System.show if4elseif}end
                         {Dictionary.put TValue.dico T.2.1 1}
+                        if TValue.most == null then 
+                            {Dictionary.put HValue.dico T.1 tValue(most:T.2.1 dico:TValue.dico cnt:1)}%Ajouter Lvl2 au Dico de Lvl1
+                        end
                     end
+
                 elseif T \= nil then %Si le mot lvl2 n'est pas présent dans le dico de lvl1
                     if Debug then{System.show if2elseif}end
                     {Dictionary.put HValue.dico T.1 tValue(most:null dico:{Dictionary.new} cnt:1)}
+                    if T.2 \= nil then
+                        TValue = {Dictionary.get HValue.dico T.1}
+                        {Dictionary.put TValue.dico T.2.1 1}
+                        if TValue.most == null then 
+                            {Dictionary.put HValue.dico T.1 tValue(most:T.2.1 dico:TValue.dico cnt:1)}%Ajouter Lvl2 au Dico de Lvl1
+                        end
+                    end
+                    {Dictionary.put Dico H hValue(most:T.1 dico:HValue.dico)}%Ajouter au Dico
                 end
             else %Si le mot lvl1 n'est pas présent
                 if Debug then{System.show else1}end
                 if T \= nil then
+                
                     if Debug then{System.show else1if1}end
                     {Dictionary.put Dico H hValue(most:T.1 dico:{Dictionary.new})}%Ajouter au Dico
                     HValue = {Dictionary.get Dico H}
@@ -63,7 +76,7 @@ define
                     if T.2 \= nil then
                         if Debug then{System.show else1if1if}end
                         TValue = {Dictionary.get HValue.dico T.1}
-                        {Dictionary.put TValue.dico T.2.1 1}
+                        {Dictionary.put TValue.dico T.2.1 1} 
                         {Dictionary.put HValue.dico T.1 tValue(most:T.2.1 dico:TValue.dico cnt:1)}%Ajouter Lvl2 au Dico de Lvl1
                     end
                 else
@@ -117,7 +130,9 @@ define
         of nil then skip
         []parse(Line)|S then
             UpdatedDico = {ParseLine Dico Line}
-            %{PrintLine Line}
+            if Line \= nil andthen Line.1 == 17798 then 
+                {PrintLine Line}
+            end
             {TreatStream S UpdatedDico}
         []endFile|S then  
             %{System.show parser(endFile)} 
@@ -134,7 +149,7 @@ define
         {NewPort Stream Port}
         thread
             {TreatStream Stream {Dictionary.new}}
-            {System.show 'b'}
+            %{System.show 'b'}
             {Send PortMain kill}
         end
         Port

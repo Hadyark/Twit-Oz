@@ -146,7 +146,6 @@ define
         case Keys 
         of nil then skip
         [] Key|T then 
-            
             HValue = {Dictionary.get Dico Key}
             {System.show d1(key:Key value:HValue)}
             %{System.show Key}
@@ -160,15 +159,15 @@ define
         case Stream
         of nil then skip
         []dico(D)|S then
-            {System.show saver(dicoReceived N+1)}
+            %{System.show saver(dicoReceived N+1)}
             {Dictionary.keys D Keys}
             {UpdateDico D Keys}
-
+            %{PrintDico Dico {Dictionary.keys Dico}}
             %{Send PortMain kill}
             {TreatStream S PortMain N+1 Ready}
         []predict(Search Predict)|S then
-            %{PrintDico Dico {Dictionary.keys Dico}}
             {PredictNext Search Predict}
+            %{PrintDico Dico {Dictionary.keys Dico}}
             {TreatStream S PortMain N Ready}
         else
             {System.show Stream.1 PortMain N}

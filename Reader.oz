@@ -12,6 +12,7 @@ define
     %       - N: the desires Nth line
     % @post: Returns the N-the line or 'none' in case it doesn't exist
     proc{SendSentence PortParser Line Word Sentence}OutPut in%{System.show parse(Line)}
+
         case Line
         of nil then 
             if Word \= nil then
@@ -22,7 +23,7 @@ define
             %{System.show reader(H)} 
             %if (H >= 48 andthen H =< 57) orelse (H >= 65 andthen H =< 90) orelse (H >= 97 andthen H =< 122) then
             
-            if (H == 33 orelse H == 63 orelse H == 46) andthen (T == nil orelse T.1 == 32) then % If it is '. ' 
+            if ((H == 33 orelse H == 63 orelse H == 46) andthen (T == nil orelse T.1 == 32  orelse T.1 == 13 ))then % If it is '. ' 
                 if Word \= nil then
                     {String.toAtom Word OutPut}
                     {Send PortParser parse({Append Sentence [OutPut]})}
@@ -38,7 +39,7 @@ define
                     {Send PortParser parse(Sentence)}
                 end
                 {SendSentence PortParser T nil nil}
-            elseif H \= 32 then %If not a ' '
+            elseif H \= 32 andthen H \= 13 then %If not a ' '
                 {SendSentence PortParser T {Append Word [H]} Sentence}
             else
                 if Word \= nil then
@@ -50,7 +51,7 @@ define
             end 
         end
     end
-    proc {Scan PortParser InFile N}
+    proc {Scan PortParser InFile}
         Line={InFile getS($)}
     in
         if Line==false then
@@ -58,7 +59,7 @@ define
             {Send PortParser endFile}
         else
             {SendSentence PortParser Line nil nil}
-            {Scan PortParser InFile N+1}
+            {Scan PortParser InFile}
         end
     end
 
