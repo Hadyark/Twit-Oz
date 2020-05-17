@@ -12,4 +12,4 @@ Laderriere Loïc(NOMA 44261900)
 * **Reader.oz:** Contient le code du Reader (lit les fichiers ".txt" et les envoie au Parser)
 * **Saver.oz:** Contient le code du Saver (merge tous les dictionnaires envoyés par les Parser en un seul dictionnaire)
 * **main.oz:** Contient le code pour lancer l'application et le GUI
-* **tweets** (dossier): Un dossier contenant tous les fichiers utilisées par l'application
+* **tweets** (dossier): Un dossier contenant tous les fichiers textes lus par l'application
